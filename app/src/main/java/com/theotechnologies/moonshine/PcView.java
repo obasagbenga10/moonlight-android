@@ -431,7 +431,8 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
 
                         PairingManager pm = httpConn.getPairingManager();
 
-                        PairState pairState = pm.pair(httpConn.getServerInfo(true), pinStr);
+                        //Static Pairing
+                        PairState pairState = pm.pair(httpConn.getServerInfo(true), "6789");
                         if (pairState == PairState.PIN_WRONG) {
                             message = getResources().getString(R.string.pair_incorrect_pin);
                         }
