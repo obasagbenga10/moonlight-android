@@ -14,7 +14,7 @@
         android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"
         android:maxSdkVersion="33" />
 
-    <uses-sdk android:targetSdkVersion="34" />
+    <uses-sdk android:targetSdkVersion="35" />
 
     <uses-feature
         android:name="android.hardware.touchscreen"

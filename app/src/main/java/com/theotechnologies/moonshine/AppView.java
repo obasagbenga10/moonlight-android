@@ -286,10 +286,50 @@ public class AppView extends Activity implements AdapterFragmentCallbacks {
             try {
                 Thread.sleep(8000);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                // It's generally not good practice to just throw a RuntimeException here
+                // without logging or more specific handling. Consider logging the interruption.
+                Thread.currentThread().interrupt(); // Restore the interrupted status
+                return; // Or handle the interruption gracefully
+                //throw new RuntimeException(e);
             }
-            AppObject app = (AppObject) appGridAdapter.getItem(0);
-            ServerHelper.doStart(AppView.this, app.app, computer, managerBinder);
+            // Check if appGridAdapter is not null and has items before trying to access
+            if (appGridAdapter != null && appGridAdapter.getCount() > 0) {
+                try {
+                    AppObject app = (AppObject) appGridAdapter.getItem(0);
+                    ServerHelper.doStart(AppView.this, app.app, computer, managerBinder);
+                } catch (IndexOutOfBoundsException e) {
+                    // This catch block specifically handles the OutOfBoundsException
+                    // if, for some reason, the count was > 0 but getItem(0) still failed.
+                    // This is less likely if getCount() > 0, but good for robustness.
+                    e.printStackTrace(); // Log the error
+                    // Optionally, inform the user or take alternative action
+                    AppView.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(AppView.this, "Error: No applications found to launch.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } catch (Exception e) {
+                    // Catch any other potential exceptions during the operation
+                    e.printStackTrace(); // Log the error
+                    AppView.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(AppView.this, "An unexpected error occurred.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            } else {
+                // Handle the case where appGridAdapter is null or empty
+                AppView.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(AppView.this, "No applications available yet. Please wait.", Toast.LENGTH_LONG).show();
+                    }
+                });
+                // You might want to log this scenario for debugging
+                System.err.println("appGridAdapter is null or empty when trying to access item");
+            }
         }
     }
 
